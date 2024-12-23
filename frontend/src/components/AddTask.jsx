@@ -17,7 +17,6 @@ const AddTask = ({closeModal, onTaskAdded}) => {
         throw new Error("User not logged in");
       }
 
-      // Add status and format dueDate to ISO string
       const payload = {
         ...taskDetails,
         status: "To Do",
@@ -32,11 +31,7 @@ const AddTask = ({closeModal, onTaskAdded}) => {
       });
 
       console.log("Task added successfully:", response.data);
-
-      // Notify parent component about the new task
       onTaskAdded(response.data);
-
-      // Close modal
       closeModal();
     } catch (error) {
       console.error("Error adding task:", error.message);

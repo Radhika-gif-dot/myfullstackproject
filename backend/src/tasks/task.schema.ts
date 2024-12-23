@@ -9,7 +9,7 @@ export const TaskSchema = new Schema({
     default: 'To Do',
   },
   dueDate: { type: Date, required: true },
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // Reference to the User model
+  user: { type: Schema.Types.ObjectId, ref: 'User', required: true }, 
 
 });
 

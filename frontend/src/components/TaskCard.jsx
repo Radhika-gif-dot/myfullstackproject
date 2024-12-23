@@ -1,46 +1,83 @@
-import React, { useState } from 'react';
-import { Check, Pen, Trash2 } from 'lucide-react'; // Icons for edit and delete
+import React, { useState, useEffect } from 'react';
+import { Check, Pen, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-const TaskCard = ({ task }) => {
-  const [status, setStatus] = useState('To Do'); // Default status is "To Do"
+
+const TaskCard = ({ task, onTaskDeleted }) => {
+  const [status, setStatus] = useState(task.status || '');
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
-    const handleStatusChange = (e) => {
-        setStatus(e.target.value);
-        setIsConfirmed(false); // Reset confirmation on status change
-      };
-    
-      // Function to update the task status
-      const handleConfirm = async () => {
-        setIsLoading(true);
-        try {
-          const authData = JSON.parse(localStorage.getItem("authdata"));
-          if (!authData) {
-            throw new Error("User not logged in");
-          }
-    
-          // Send the updated status to the backend
-          const response = await axios.put(
-            `http://localhost:8080/tasks/status/${task.id}`, // Use the task ID to target the task
-            { status },
-            {
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${authData.access_token}`,
-              },
-            }
-          );
-          
-          setIsConfirmed(true); // Status updated successfully
-          console.log('Task status updated:', response.data);
-        } catch (error) {
-          console.error('Error updating task:', error.message);
-        } finally {
-          setIsLoading(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (status !== task.status) {
+      setIsConfirmed(false);
+    }
+  }, [status, task.status]);
+
+  const handleStatusChange = (e) => {
+    setStatus(e.target.value);
+  };
+
+  const handleConfirm = async () => {
+    if (status === task.status) {
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const authData = JSON.parse(localStorage.getItem("authdata"));
+      if (!authData) {
+        throw new Error("User not logged in");
+      }
+      const response = await axios.put(
+        `http://localhost:8080/tasks/status/${task._id}`,
+        { status },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${authData.access_token}`,
+          },
         }
-      };
+      );
+
+      setIsConfirmed(true);
+      console.log('Task status updated:', response.data);
+    } catch (error) {
+      console.error('Error updating task:', error.message);
+      alert('Failed to update task status. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this task?')) {
+      setIsLoading(true);
+      try {
+        const authData = JSON.parse(localStorage.getItem("authdata"));
+        if (!authData) {
+          throw new Error("User not logged in");
+        }
+        const response = await axios.delete(
+          `http://localhost:8080/tasks/${task._id}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${authData.access_token}`,
+            },
+          }
+        );
+
+        console.log('Task deleted successfully:', response.data);
+        onTaskDeleted(task._id);
+      } catch (error) {
+        console.error('Error deleting task:', error.message);
+        alert('Failed to delete task. Please try again.');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
 
   return (
     <div className="p-4 border rounded-md shadow-md w-full mb-4">
@@ -53,16 +90,17 @@ const TaskCard = ({ task }) => {
 
         {/* Edit and Delete Icons */}
         <div className="flex items-center space-x-2">
-          <button 
-          className="text-blue-500 hover:text-blue-700"
-            onClick={() => navigate(`/tasks/${task.id}`)}
+          <button
+            className="text-blue-500 hover:text-blue-700"
+            onClick={() => navigate(`/tasks/${task._id}`)}
           >
-          {/* onClick={() => onUpdate(task.id)}  */}
             <Pen size={20} />
           </button>
-          <button 
-          className="text-red-500 hover:text-red-700">
-          {/* onClick={() => onDelete(task.id)}  */}
+          <button
+            className="text-red-500 hover:text-red-700"
+            onClick={handleDelete}
+            disabled={isLoading}
+          >
             <Trash2 size={20} />
           </button>
         </div>
@@ -103,18 +141,23 @@ const TaskCard = ({ task }) => {
           </label>
         </div>
 
-        <div className='flex items-center gap-x-5 mt-3'>
-        <h3 className="text-base text-freshbasil font-bold">Task Due On {new Date(task.dueDate).toLocaleDateString()}</h3>
+        <div className="flex items-center gap-x-5 mt-3">
+          <h3 className="text-base text-freshbasil font-bold">
+            Task Due On {new Date(task.dueDate).toLocaleDateString()}
+          </h3>
           <button
             onClick={handleConfirm}
-            className="bg-freshbasil text-white px-4 py-1 rounded-md flex items-center active:bg-dustyrose gap-x-1"
-            disabled = {true}
+            className={`bg-freshbasil text-white px-4 py-1 rounded-md flex items-center active:bg-dustyrose gap-x-1 ${
+              status === task.status ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            disabled={isLoading || status === task.status}
           >
             {isLoading ? 'Updating...' : <Check />}
             Change
           </button>
-          </div>
+        </div>
       </div>
+      {isConfirmed && <p className="text-green-500 mt-2">Status updated successfully!</p>}
     </div>
   );
 };

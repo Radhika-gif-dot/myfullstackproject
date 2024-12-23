@@ -1,43 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const UpdateTask = () => {
-  const { id } = useParams(); // Fetch ID from URL params
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [taskDetails, setTaskDetails] = useState({
     title: '',
     description: '',
     dueDate: '',
+    status: '',
   });
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [tasks, setTasks] = useState([]);
 
   useEffect(() => {
-    // Fetch task details by ID
-    const loadTask = async () => {
+    const loadTasks = async () => {
       try {
-        // 
-    } catch (error) {
-        navigate('/todos'); // Redirect to tasks page if task not found
-    }finally{
+        const authData = JSON.parse(localStorage.getItem("authdata"));
+      if (!authData) {
+        navigate("/");
+        throw new Error("User not logged in");
+      }
+        const response = await axios.get("http://localhost:8080/tasks", {
+          headers: {
+            Authorization: `Bearer ${authData.access_token}`,
+          },
+        });
+        setTasks(response.data); 
+        const task = response.data.find((task) => task._id === id);
+        if (task) {
+          setTaskDetails({
+            title: task.title,
+            description: task.description,
+            dueDate: new Date(task.dueDate).toISOString().split('T')[0],
+            status: task.status,
+          });
+        } else {
+          navigate('/todos'); 
+        }
+      } catch (error) {
+        console.error('Error loading tasks:', error.message);
+        navigate('/todos');
+      } finally {
         setIsLoading(false);
-    }
+      }
     };
-    loadTask();
-  }, [id]);
+
+    loadTasks();
+  }, [id, navigate]);
 
   const handleChange = (e) => {
     setTaskDetails({ ...taskDetails, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate('/todos'); // Redirect back to tasks page
+    setIsUpdating(true);
+    try {
+      const authData = JSON.parse(localStorage.getItem("authdata"));
+      if (!authData) {
+        throw new Error("User not logged in");
+      }
+
+      await axios.put(
+        `http://localhost:8080/tasks/${id}`,
+        {
+          title: taskDetails.title,
+          description: taskDetails.description,
+          dueDate: taskDetails.dueDate,
+          status: taskDetails.status,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+             Authorization: `Bearer ${authData.access_token}`
+          },
+        }
+      );
+
+      alert('Task updated successfully');
+      navigate('/todos'); 
+    } catch (error) {
+      console.error('Error updating task:', error.message);
+      alert('Failed to update task. Please try again.');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const handleCancel = () => {
-    navigate('/todos'); // Cancel and go back
+    navigate('/todos'); 
   };
 
   if (isLoading) {
@@ -98,6 +154,24 @@ const UpdateTask = () => {
           />
         </div>
 
+        {/* Task Status */}
+        <div>
+          <label className="block text-sm font-medium mb-1" htmlFor="status">
+            Task Status
+          </label>
+          <select
+            id="status"
+            name="status"
+            value={taskDetails.status}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-md"
+          >
+            <option value="To Do">To Do</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Done">Done</option>
+          </select>
+        </div>
+
         {/* Buttons */}
         <div className="flex items-center gap-x-4 w-full">
           {/* Cancel Button */}
@@ -112,8 +186,9 @@ const UpdateTask = () => {
           <button
             type="submit"
             className="bg-dustyrose text-white py-2 px-4 rounded-md hover:bg-freshbasil"
+            disabled={isUpdating}
           >
-            Update Task
+            {isUpdating ? 'Updating...' : 'Update Task'}
           </button>
         </div>
       </form>

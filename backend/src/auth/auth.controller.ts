@@ -1,4 +1,3 @@
-// auth.controller.ts
 import { Controller, Post, Body, UseGuards, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/create-user.dto';

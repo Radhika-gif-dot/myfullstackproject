@@ -29,8 +29,8 @@ export class CreateTaskDto {
   status: string;
 
   @IsDate()
-  @Transform(({ value }) => new Date(value), { toClassOnly: true }) // Convert string to Date
-  @Type(() => Date)  // Ensure it's treated as a Date
+  @Transform(({ value }) => new Date(value), { toClassOnly: true }) 
+  @Type(() => Date) 
   dueDate: Date;
 
 }
@@ -56,7 +56,7 @@ export class UpdateTaskDto {
   status: string;
 
   @IsDate()
-  @Transform(({ value }) => new Date(value), { toClassOnly: true }) // Convert string to Date
-  @Type(() => Date)  // Ensure it's treated as a Date
+  @Transform(({ value }) => new Date(value), { toClassOnly: true }) 
+  @Type(() => Date) 
   dueDate: Date;
 }

@@ -9,13 +9,13 @@ console.log('api',api);
 export const registerUser = async (data) => {
     console.log(data);
     try {
-      const response = await api.post("/auth/register", data); // Only use the relative path here
+      const response = await api.post("/auth/register", data); 
       console.log('response', response);
   
       const result = response.data;
-      localStorage.setItem("authdata", JSON.stringify(result.data)); // Store the result in localStorage
+      localStorage.setItem("authdata", JSON.stringify(result.data)); 
   
-      return result; // You can return the result directly here
+      return result; 
     } catch (error) {
       console.error(
         "Registration failed:",
@@ -27,13 +27,13 @@ export const registerUser = async (data) => {
   
 export const loginUser = async (data) => {
     try {
-      const response = await api.post("/auth/login", data); // Only use the relative path here
+      const response = await api.post("/auth/login", data); 
       console.log('response', response);
   
       const result = response.data;
-      localStorage.setItem("authdata", JSON.stringify(result.data)); // Store the result in localStorage
+      localStorage.setItem("authdata", JSON.stringify(result.data)); 
   
-      return result; // You can return the result directly here
+      return result; 
     } catch (error) {
       console.error(
         "Login failed:",

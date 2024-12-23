@@ -34,7 +34,7 @@ export class TasksController {
 @UseGuards(AuthGuard('jwt'))
 async updateTaskStatus(
   @Param('id') id: string,
-  @Body('status') status: string, // Expect the status to be passed in the body
+  @Body('status') status: string, 
 ): Promise<Task> {
   if (!['To Do', 'In Progress', 'Done'].includes(status)) {
     throw new BadRequestException('Invalid status value');

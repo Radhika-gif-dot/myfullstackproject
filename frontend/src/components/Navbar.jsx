@@ -8,16 +8,13 @@ function Navbar() {
   const params = useParams();
   const getProfilePhotoSrc = (base64Image) => {
     if (!base64Image) return null;
-    // Check image type by examining the first few characters of the Base64 string
     if (base64Image.startsWith("/9j/"))
       return `data:image/jpeg;base64,${base64Image}`;
     if (base64Image.startsWith("iVBORw0KGgo"))
       return `data:image/png;base64,${base64Image}`;
-    // Add other formats as needed
-    return null; // Fallback if the format is not recognized
+    return null; 
   };
   useEffect(() => {
-    // Fetch authData from localStorage
     const storedAuthData = localStorage.getItem("authdata");
     if (storedAuthData) {
       const parsedAuthData = JSON.parse(storedAuthData);
@@ -31,10 +28,9 @@ function Navbar() {
   }, [params]);
 
   const handleLogout = () => {
-    // Remove authData from localStorage
     localStorage.removeItem("authdata");
-    setAuthData(null); // Update state to reflect logged-out status
-    navigate("/"); // Redirect to home or login page
+    setAuthData(null); 
+    navigate("/");
   };
 
 

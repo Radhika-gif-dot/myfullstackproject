@@ -24,7 +24,7 @@ function TasksToDo() {
           Authorization: `Bearer ${authData.access_token}`,
         },
       });
-      setTasks(response.data); // Assuming the response is an array of tasks
+      setTasks(response.data); 
     } catch (error) {
       console.error("Error fetching tasks:", error.message);
     } finally {
@@ -37,8 +37,11 @@ function TasksToDo() {
   }, []);
 
   const handleTaskAdded = (newTask) => {
-    setTasks((prevTasks) => [newTask, ...prevTasks]); // Add new task to the list
-    setShowAddTaskModal(false); // Close the modal
+    setTasks((prevTasks) => [newTask, ...prevTasks]); 
+    setShowAddTaskModal(false); 
+  };
+  const handleTaskDeleted = (taskId) => {
+    setTasks(tasks.filter(task => task._id !== taskId));  // Remove deleted task from state
   };
   return (
     <div className="max-w-7xl mx-auto px-4 flex flex-col justify-between items-center h-14 py-1 mt-5">
@@ -62,7 +65,9 @@ function TasksToDo() {
       {isLoading ? (
           <div className="text-center">Loading tasks...</div>
         ) : tasks.length > 0 ? (
-          tasks.map((task, index) => <TaskCard task={task} key={index} />)
+          tasks.map((task) => (
+            <TaskCard task={task} key={task._id} onTaskDeleted={handleTaskDeleted} />
+          ))        
         ) : (
           <div className="text-center">No tasks available</div>
         )}
