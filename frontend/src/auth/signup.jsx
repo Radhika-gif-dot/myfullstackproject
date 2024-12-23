@@ -13,17 +13,18 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { userSignUpSchema } from "../validators/usercredentials";
 import { registerUser } from "../api service/auth.api";
-
+import { useNavigate } from "react-router-dom";
 function SignUp() {
   const [inputValues, setInput] = useState({
-    username: "", // Change to 'username' from 'userName'
+    username: "", 
     email: "",
     password: "",
-    profilePhoto: "", // Change to 'profilePhoto' from 'profilePicture'
+    profilePhoto: "", 
   });
   const [isLoading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
   const handleInput = (event) => {
     const { name, value } = event.target;
     setInput({ ...inputValues, [name]: value });
@@ -63,9 +64,10 @@ function SignUp() {
       console.log(inputValues);
       const response = await registerUser(inputValues);
       console.log(response);
+      navigate("/");
+
     } catch (error) {
-      console.error(error);
-    } finally {
+      console.error(error);    } finally {
       setLoading(false);
     }
   };
