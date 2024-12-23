@@ -1,24 +1,42 @@
-import logo from './logo.svg';
-import './App.css';
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import RootLayout from "./layout/RootLayout";
+import Login from "./auth/login";
+import SignUp from "./auth/signup";
+import TasksToDo from "./components/TasksToDo";
+import TaskUpdate from "./components/TaskUpdate";
 
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <RootLayout />,
+    children: [
+      {
+        path: "/",
+        element: <Login />,
+      },
+      {
+        path: "/signup",
+        element: <SignUp />,
+      },
+      {
+        path: "/todos",
+        element: <TasksToDo />,
+      },
+      {
+        path: "/tasks/:id",
+        element: <TaskUpdate />,
+      },
+    ]
+  }
+  
+]);
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <main>
+        <RouterProvider router={router} />
+      </main>
+    </>
   );
 }
 
